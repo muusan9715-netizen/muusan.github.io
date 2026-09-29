@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta http-equiv="content-type" charset="UTF-8">
+		<title> 列車時刻表</title>
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">			
+		<style>
+			:root 
+			{
+            	--lineColor: #ff0000; /* デフォルト値 */
+        	}
+			.time_table
+			{  
+				font-family: "Noto Sans JP", sans-serif;
+  				font-size: 25px;
+				display:none;
+			}
+
+			.time_arr
+			{
+				width: 130px;
+				position: relative;
+				top: 17px;
+			}
+
+			.time_dep
+			{
+				position: relative;
+				top: -10px;
+			}
+
+			.time_dep_start
+			{
+				position: relative;
+				top: -16px;
+				left: 10px;
+				width: 130px;
+			}
+
+			.time_dep_end
+			{
+				position: relative;
+				top: 23px;
+				left: 10px;
+			}
+
+			.stop_line
+			{
+				width: 30px;
+			}
+
+			.station_name
+			{
+				font-size: 40px;
+				font-weight: bold;
+				position: relative;
+				top: 3px;
+				color:#007AFF
+			}
+
+			.chuuryaku
+			{
+				font-size: 30px;
+				font-weight: bold;
+				color:#000000
+			}
+
+			.station_name_start
+			{
+				font-size: 40px;
+				font-weight: bold;
+				position: relative;
+				top: -20px;
+				color:#007AFF
+			}
+
+			.station_name_end
+			{
+				font-size: 40px;
+				font-weight: bold;
+				position: relative;
+				top: 23px;
+				color:#007AFF
+			}
+
+			.stop_start
+			{
+				width: 10px;
+				height: 80px;
+				position: relative;
+				top: 3px;
+			}
+
+			.stop_start::after
+			{
+				content: "";
+				display: block; 
+				
+				position: absolute;
+				width: 40px;
+				height: 40px;
+				background: #707070;
+				top: 0px;
+   				left: -15px;				
+			}
+
+			.stop_start::before
+			{
+				content: "発";
+				font-size: 30px;
+				font-weight: bold;
+				color: #ffffff;
+				display: block; 
+				
+				z-index: 1;
+
+				position: absolute;
+				top: -3px;
+   				left: -10px;				
+			}
+
+
+			.stop
+			{
+				width: 10px;
+				height: 120px;
+				background: var(--lineColor);
+				position: relative;
+				
+			}
+			.stop2
+			{
+				width: 10px;
+				height: 120px;
+				background: var(--lineColor);;
+				position: relative;
+				top: 5px;
+				
+			}
+
+			.stop::before
+			{
+				content: "";
+				display: block; 
+				
+				position: absolute;
+				width: 40px;
+				height: 40px;
+				background: var(--lineColor);;
+				border-radius: 50%;
+				top: 45px;
+   				left: -15px;				
+			}
+
+			.stop::after
+			{
+				content: "";
+				display: block;
+				position: absolute;
+				top: 50px;
+   				left: -10px;
+				width: 30px;
+				height: 30px;
+				background: #ffffff;
+				border-radius: 50%;
+				
+			}
+
+			.stop_end
+			{
+				width: 10px;
+				height: 80px;
+				background: var(--lineColor);;
+				position: relative;
+			}
+
+			.stop_end::after
+			{
+				content: "";
+				display: block; 
+				
+				position: absolute;
+				width: 40px;
+				height: 40px;
+				background: #707070;
+				top: 43px;
+   				left: -15px;				
+			}
+
+			.stop_end::before
+			{
+				content: "着";
+				font-size: 30px;
+				font-weight: bold;
+				color: #ffffff;
+				display: block; 
+				
+				z-index: 1;
+
+				position: absolute;
+				top: 40px;
+   				left: -10px;				
+			}
+
+			.stop_outer
+			{
+				width: 10px;
+				height: 120px;
+				background: var(--lineColor);
+				position: relative;
+			}
+
+			.TT_index
+			{
+				position:fixed;
+				top: 70px;
+				left: 0;
+				background-color:#eeeeee; 
+				width: 100%;
+				height: 80px; 
+				z-index:999;
+			}
+
+			.TT_index_space
+			{
+				height: 80px;
+			}
+
+			.TT_menu
+			{
+				position:fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				font-size: 30px;
+				height: 70px;
+				z-index:999;
+				background-color:#ffffff; 
+			}
+
+			.TT_menu_space
+			{
+				height: 70px;
+			}
+
+			.custom-link 
+			{
+            color: #007AFF;
+            text-decoration: none;
+        	}
+		</style>
+		<link rel="stylesheet" type="text/css" href="common.css">
+		<script>
+
+			function ShowTable()
+			{
+				// URLのクエリパラメータを取得
+				const urlParams = new URLSearchParams(window.location.search);
+
+				// 引数を取得
+				const select = urlParams.get("sel");
+
+				// 表示
+				document.getElementById(select).style.display="block";
+			}
+
+
+		</script>
+	</head>
+	<body onload='ShowTable()'>
+		<div class="TT_menu">
+			<a href="TTIndex.html">駅一覧に戻る</a>
+		</div>
+		<div class="TT_menu_space"></div>
+		<div id="868" class="time_table"  style="--lineColor: #3498DB;">
+			<div class="TT_index">
+				&nbsp内房線 <span class="type_9">快速</span>
+				<br>
+				&nbsp大船行
+			</div>
+			<div class="TT_index_space"></div>
+			<table>
+				<tr>
+					<td class="time_dep_start">
+						12:47
+					</td>
+					<td class="stop_line">
+						<div class="stop_start">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td class="station_name_start">
+						<a href="rd.html?sel=STTS_287&dia=0" class="custom-link">君津</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						12:52 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_286&dia=0" class="custom-link">木更津</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						12:53 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						12:56 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_285&dia=0" class="custom-link">巌根</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						12:56 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						12:59 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_284&dia=0" class="custom-link">袖ヶ浦</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:00 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:03 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_283&dia=0" class="custom-link">長浦（千葉県）</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:04 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:07 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_282&dia=0" class="custom-link">姉ヶ崎</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:07 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:11 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_281&dia=0" class="custom-link">五井</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:12 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:15 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_280&dia=0" class="custom-link">八幡宿</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:16 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:18 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_279&dia=0" class="custom-link">浜野</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:18 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:22 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_278&dia=0" class="custom-link">蘇我</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:24 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:26 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_252&dia=0" class="custom-link">本千葉</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:27 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:29 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_251&dia=0" class="custom-link">千葉</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:30 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:33 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_249&dia=0" class="custom-link">稲毛</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:33 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:39 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_247&dia=0" class="custom-link">津田沼</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:40 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:43 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_246&dia=0" class="custom-link">船橋</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:44 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:46 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_245&dia=0" class="custom-link">西船橋</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:47 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:52 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_244&dia=0" class="custom-link">市川</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:52 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:57 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_243&dia=0" class="custom-link">新小岩</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:57 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:01 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_242&dia=0" class="custom-link">錦糸町</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:02 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:05 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_241&dia=0" class="custom-link">馬喰町</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:06 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:07 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_240&dia=0" class="custom-link">新日本橋</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:08 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:10 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_239&dia=0" class="custom-link">東京</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:15 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:17 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_238&dia=0" class="custom-link">新橋</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:18 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:23 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_237&dia=0" class="custom-link">品川</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:24 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:29 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_229&dia=0" class="custom-link">西大井</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:29 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:34 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_217&dia=0" class="custom-link">武蔵小杉</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:34 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:38 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_213&dia=0" class="custom-link">新川崎</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:38 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:46 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_212&dia=0" class="custom-link">横浜</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:47 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:50 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_211&dia=0" class="custom-link">保土ヶ谷</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:51 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						14:55 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_210&dia=0" class="custom-link">東戸塚</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						14:55 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						15:00 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_209&dia=0" class="custom-link">戸塚</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						15:00 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep_end">
+						15:05
+					</td>
+					<td class="stop_line">
+						<div class="stop_end"></div>
+					</td>
+					<td class="station_name_end">
+						<a href="rd.html?sel=STTS_208&dia=0" class="custom-link">大船</a>
+					</td>
+				</tr>
+			</table>
+			<div style="background:#eeeeee;">
+				<p>
+					<span style="font-weight: bold;">運転日</span>
+					<br>
+					総合運転
+				</p>	
+				<p>
+					<span style="font-weight: bold;">備考</span>
+					<br>
+					<br>
+				</p>	
+			</div>
+		</div>
+		<div id="869" class="time_table"  style="--lineColor: #FF0000;">
+			<div class="TT_index">
+				&nbsp東金線 <span class="type_3">普通</span>
+				<br>
+				&nbsp千葉行
+			</div>
+			<div class="TT_index_space"></div>
+			<table>
+				<tr>
+					<td class="time_dep_start">
+						12:52
+					</td>
+					<td class="stop_line">
+						<div class="stop_start">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td class="station_name_start">
+						<a href="rd.html?sel=STTS_312&dia=0" class="custom-link">成東</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						12:57 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_311&dia=0" class="custom-link">求名</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						12:57 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:01 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_310&dia=0" class="custom-link">東金</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:02 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:05 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_309&dia=0" class="custom-link">福俵</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:05 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:08 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_308&dia=0" class="custom-link">大網</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:09 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:13 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_256&dia=0" class="custom-link">土気</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:13 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:18 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_255&dia=0" class="custom-link">誉田</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:18 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:22 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_254&dia=0" class="custom-link">鎌取</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:22 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:27 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_253&dia=0" class="custom-link">蘇我</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:31 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:33 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_252&dia=0" class="custom-link">本千葉</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:34 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep_end">
+						13:36
+					</td>
+					<td class="stop_line">
+						<div class="stop_end"></div>
+					</td>
+					<td class="station_name_end">
+						<a href="rd.html?sel=STTS_251&dia=0" class="custom-link">千葉</a>
+					</td>
+				</tr>
+			</table>
+			<div style="background:#eeeeee;">
+				<p>
+					<span style="font-weight: bold;">運転日</span>
+					<br>
+					総合運転
+				</p>	
+				<p>
+					<span style="font-weight: bold;">備考</span>
+					<br>
+					<br>
+				</p>	
+			</div>
+		</div>
+		<div id="870" class="time_table"  style="--lineColor: #F1C40F;">
+			<div class="TT_index">
+				&nbsp総武本線 <span class="type_3">普通</span>
+				<br>
+				&nbsp千葉行
+			</div>
+			<div class="TT_index_space"></div>
+			<table>
+				<tr>
+					<td class="time_dep_start">
+						12:48
+					</td>
+					<td class="stop_line">
+						<div class="stop_start">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td class="station_name_start">
+						<a href="rd.html?sel=STTS_323&dia=0" class="custom-link">成東</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						12:52 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_322&dia=0" class="custom-link">日向</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						12:52 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						12:57 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_321&dia=0" class="custom-link">八街</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						12:57 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:01 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_320&dia=0" class="custom-link">榎戸（千葉県）</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:02 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:04 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_319&dia=0" class="custom-link">南酒々井</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:05 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:08 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_318&dia=0" class="custom-link">佐倉</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:09 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:12 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_317&dia=0" class="custom-link">物井</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:13 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:16 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_316&dia=0" class="custom-link">四街道</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:17 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:20 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_315&dia=0" class="custom-link">都賀</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:20 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_arr">
+						13:23 着
+					</td>
+					<td rowspan="2" class="stop_line">
+						<div class="stop">
+							<div class="stop2"></div>
+						</div>
+					</td>
+					<td rowspan="2" class="station_name">
+						<a href="rd.html?sel=STTS_314&dia=0" class="custom-link">東千葉</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep">
+						13:23 発
+					</td>
+				</tr>
+				<tr>
+					<td class="time_dep_end">
+						13:25
+					</td>
+					<td class="stop_line">
+						<div class="stop_end"></div>
+					</td>
+					<td class="station_name_end">
+						<a href="rd.html?sel=STTS_313&dia=0" class="custom-link">千葉</a>
+					</td>
+				</tr>
+			</table>
+			<div style="background:#eeeeee;">
+				<p>
+					<span style="font-weight: bold;">運転日</span>
+					<br>
+					総合運転
+				</p>	
+				<p>
+					<span style="font-weight: bold;">備考</span>
+					<br>
+					<br>
+				</p>	
+			</div>
+		</div>
+	<br>この時刻表はOuOrario V001.002を使用して生成しています。<a href="https://surugaexpress.web.fc2.com/X7_freeSoft/ouorario/ouorario.html">詳細</a></body>
+</html>
